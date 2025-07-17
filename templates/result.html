@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結果発表！</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Yusei+Magic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>結果発表！</h1>
+        </header>
+
+        <main id="result-area">
+            <h2>あなたの正解率は...</h2>
+            <div class="score">
+                <span id="score-percentage"></span>%
+            </div>
+            <p>（{{ score }} / {{ total }} 問正解）</p>
+
+            <div class="level">
+                あなたの憲法レベルは... <br>
+                <span id="level-text"></span>
+            </div>
+
+            <a href="/" class="back-to-top">トップに戻る</a>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Kenpo Quiz App</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const score = {{ score }};
+            const total = {{ total }};
+            const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+
+            document.getElementById('score-percentage').textContent = percentage;
+
+            let level = '';
+            if (percentage === 100) {
+                level = '🎓 憲法マスター博士！';
+            } else if (percentage >= 80) {
+                level = '🏛️ 未来の法律家レベル';
+            } else if (percentage >= 50) {
+                level = '📖 よくできました！';
+            } else if (percentage >= 20) {
+                level = '🐣 これから期待！';
+            } else {
+                level = '✍️ もう一度がんばろう！';
+            }
+            document.getElementById('level-text').innerHTML = level;
+        });
+    </script>
+</body>
+</html>

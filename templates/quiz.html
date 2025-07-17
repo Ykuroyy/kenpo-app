@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>けんぽうクイズ - {{ difficulty }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Yusei+Magic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="quiz-header">けんぽうクイズ</h1>
+        </header>
+
+        <main id="quiz-container">
+            <div id="question-area">
+                <p id="progress-text">第1問</p>
+                <p id="question-genre"></p>
+                <h2 id="question-text"></h2>
+            </div>
+
+            <div id="options-area">
+                <!-- 選択肢はJavaScriptでここに生成されます -->
+            </div>
+
+            <div id="feedback-area">
+                <!-- 正解・不正解のフィードバック -->
+            </div>
+
+            <div id="explanation-area">
+                <h3>📜 解説</h3>
+                <p id="explanation-text"></p>
+            </div>
+
+            <button id="next-btn" class="btn">次の問題へ</button>
+
+        </main>
+
+    </div>
+
+    <script>
+        // Flaskから渡された難易度をJavaScript変数に格納
+        const DIFFICULTY = "{{ difficulty }}";
+    </script>
+    <script src="/static/js/script.js"></script>
+    <a href="/" class="back-to-top">トップに戻る</a>
+</body>
+</html>
