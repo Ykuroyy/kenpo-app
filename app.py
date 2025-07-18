@@ -87,4 +87,12 @@ def internal_error(error):
     logger.error(f"500 error: {error}")
     return "サーバーエラーが発生しました。", 500
 
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8080))
+    host = os.environ.get('HOST', '0.0.0.0')
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    logger.info(f"Starting Flask app on {host}:{port} with debug={debug}")
+    app.run(debug=debug, host=host, port=port)
+
 
