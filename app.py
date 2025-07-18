@@ -3,7 +3,9 @@ import os
 import json
 from flask import Flask, render_template, jsonify, request
 
-app = Flask(__name__)
+# アプリケーションのルートディレクトリを取得
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, static_folder=os.path.join(BASE_DIR, 'static'))
 
 # ログレベルを設定
 import logging
@@ -12,23 +14,18 @@ logger = logging.getLogger(__name__)
 
 # クイズデータを読み込む
 def load_quizzes():
-    # 現在のワーキングディレクトリをログに出力
-    current_dir = os.getcwd()
-    logger.info(f"Current working directory: {current_dir}")
-
-    file_path = os.path.join(current_dir, 'static', 'data', 'quizzes.json')
-    logger.info(f"Attempting to load quizzes from: {file_path}")
-
-    if not os.path.exists(file_path):
-        logger.error(f"File not found at expected path: {file_path}")
-        # ここでさらに、static/data ディレクトリが存在するかなども確認できると良い
-        static_data_dir = os.path.join(current_dir, 'static', 'data')
-        logger.error(f"Does static/data directory exist? {os.path.isdir(static_data_dir)}")
-
-
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        quiz_file_path = os.path.join(BASE_DIR, 'static', 'data', 'quizzes.json')
+        logger.info(f"Loading quizzes from: {quiz_file_path}")
+        
+        if not os.path.exists(quiz_file_path):
+            logger.error(f"Quiz file not found at: {quiz_file_path}")
+            return {"easy": [], "normal": [], "hard": []}
+            
+        with open(quiz_file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            logger.info(f"Successfully loaded quizzes: {list(data.keys())}")
+            return data
     except FileNotFoundError:
         logger.error("quizzes.json file not found")
         return {"easy": [], "normal": [], "hard": []}
@@ -89,7 +86,39 @@ def result():
 @app.route('/health')
 def health():
     """ヘルスチェック用エンドポイント"""
-    return jsonify({"status": "healthy"}), 200
+    logger.info("Health check requested")
+    try:
+        # 基本的な機能テスト
+        quizzes = load_quizzes()
+        return jsonify({
+            "status": "healthy",
+            "quizzes_loaded": len(quizzes) > 0,
+            "available_difficulties": list(quizzes.keys())
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+
+@app.route('/debug')
+def debug():
+    """デバッグ情報を表示"""
+    logger.info("Debug info requested")
+    try:
+        debug_info = {
+            "base_dir": BASE_DIR,
+            "static_folder": app.static_folder,
+            "templates_folder": app.template_folder,
+            "files": {
+                "quizzes.json": os.path.exists(os.path.join(BASE_DIR, 'static', 'data', 'quizzes.json')),
+                "index.html": os.path.exists(os.path.join(BASE_DIR, 'templates', 'index.html')),
+                "quiz.html": os.path.exists(os.path.join(BASE_DIR, 'templates', 'quiz.html')),
+                "result.html": os.path.exists(os.path.join(BASE_DIR, 'templates', 'result.html')),
+            }
+        }
+        return jsonify(debug_info), 200
+    except Exception as e:
+        logger.error(f"Debug info failed: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.errorhandler(404)
 def not_found(error):
