@@ -95,8 +95,20 @@ def result():
 @app.route('/health')
 def health():
     """ヘルスチェック用エンドポイント"""
-    logger.info("Health check requested (simple)")
-    return jsonify({"status": "ok"}), 200
+    logger.info("Health check requested")
+    try:
+        # 基本的な機能テスト
+        quizzes = load_quizzes()
+        return jsonify({
+            "status": "healthy",
+            "quizzes_loaded": len(quizzes) > 0,
+            "available_difficulties": list(quizzes.keys()),
+            "port": os.environ.get('PORT', 'Not set'),
+            "base_dir": BASE_DIR
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
 
 @app.route('/debug')
 def debug():
