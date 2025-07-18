@@ -12,8 +12,22 @@ logger = logging.getLogger(__name__)
 
 # クイズデータを読み込む
 def load_quizzes():
+    # 現在のワーキングディレクトリをログに出力
+    current_dir = os.getcwd()
+    logger.info(f"Current working directory: {current_dir}")
+
+    file_path = os.path.join(current_dir, 'static', 'data', 'quizzes.json')
+    logger.info(f"Attempting to load quizzes from: {file_path}")
+
+    if not os.path.exists(file_path):
+        logger.error(f"File not found at expected path: {file_path}")
+        # ここでさらに、static/data ディレクトリが存在するかなども確認できると良い
+        static_data_dir = os.path.join(current_dir, 'static', 'data')
+        logger.error(f"Does static/data directory exist? {os.path.isdir(static_data_dir)}")
+
+
     try:
-        with open('static/data/quizzes.json', 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         logger.error("quizzes.json file not found")
