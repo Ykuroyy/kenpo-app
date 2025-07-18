@@ -9,8 +9,17 @@ app = Flask(__name__, static_folder=os.path.join(BASE_DIR, 'static'))
 
 # ログレベルを設定
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
+
+# 起動時のログ
+logger.info(f"Application starting...")
+logger.info(f"BASE_DIR: {BASE_DIR}")
+logger.info(f"PORT: {os.environ.get('PORT', 'Not set')}")
+logger.info(f"FLASK_ENV: {os.environ.get('FLASK_ENV', 'Not set')}")
 
 # クイズデータを読み込む
 def load_quizzes():
@@ -93,7 +102,9 @@ def health():
         return jsonify({
             "status": "healthy",
             "quizzes_loaded": len(quizzes) > 0,
-            "available_difficulties": list(quizzes.keys())
+            "available_difficulties": list(quizzes.keys()),
+            "port": os.environ.get('PORT', 'Not set'),
+            "base_dir": BASE_DIR
         }), 200
     except Exception as e:
         logger.error(f"Health check failed: {e}")
@@ -108,6 +119,8 @@ def debug():
             "base_dir": BASE_DIR,
             "static_folder": app.static_folder,
             "templates_folder": app.template_folder,
+            "port": os.environ.get('PORT', 'Not set'),
+            "flask_env": os.environ.get('FLASK_ENV', 'Not set'),
             "files": {
                 "quizzes.json": os.path.exists(os.path.join(BASE_DIR, 'static', 'data', 'quizzes.json')),
                 "index.html": os.path.exists(os.path.join(BASE_DIR, 'templates', 'index.html')),
@@ -129,6 +142,9 @@ def not_found(error):
 def internal_error(error):
     logger.error(f"500 error: {error}")
     return "サーバーエラーが発生しました。", 500
+
+# アプリケーション起動時のログ
+logger.info("Flask app configured successfully")
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
